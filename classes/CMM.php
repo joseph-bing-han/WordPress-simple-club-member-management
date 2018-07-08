@@ -524,14 +524,17 @@ class ClubMemberManagement
             // OK to save meta data
 
             //send mail to each member
-            $subject = $_POST['post_title'];
-            $body = $_POST['mail_body'];
-            $body = str_replace('\"', '"', $body);
-            $headers = array('Content-Type: text/html; charset=UTF-8');
-            foreach ($_POST['member_id'] as $id) {
-                $to = get_post_meta($id, ClubMemberManagement::MEMBER_TYPE . '_email');
-                wp_mail($to, $subject, $body, $headers);
+            if ($_POST['post_status'] === 'publish') {
+                $subject = $_POST['post_title'];
+                $body = $_POST['mail_body'];
+                $body = str_replace('\"', '"', $body);
+                $headers = array('Content-Type: text/html; charset=UTF-8');
+                foreach ($_POST['member_id'] as $id) {
+                    $to = get_post_meta($id, ClubMemberManagement::MEMBER_TYPE . '_email');
+                    wp_mail($to, $subject, $body, $headers);
+                }
             }
+
         } else {
             return $post_id;
         }
