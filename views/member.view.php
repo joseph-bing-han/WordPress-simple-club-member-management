@@ -44,7 +44,7 @@ foreach (ClubMemberManagement::MEMBER_FIELDS as $field) {
             echo("<textarea {$field["custom_attribute"]} id='{$field["key"]}' name='{$field["key"]}'>{$data[$field["key"]]}</textarea>");
             break;
         case 'member_group':
-            $ids = explode(',', $data[$field['key']]);
+            $ids = $data[$field['key']];
             $groups = [];
             $group_select = "<select id='select_group_list' name='{$field["key"]}'>
              <option value=''>Choose Group</option>";

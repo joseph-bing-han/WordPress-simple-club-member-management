@@ -471,19 +471,24 @@ class ClubMemberManagement
             'post_type' => ClubMemberManagement::MEMBER_TYPE
         ]);
         foreach ($all_members as $member) {
-            $group = get_post_meta($member->ID, ClubMemberManagement::MEMBER_TYPE . '_member_group');
-            if (!empty($group)) {
-                $group_data = get_post($group[0]);
-                $group = $group_data->post_title;
-            }
+
             $mail = get_post_meta($member->ID, ClubMemberManagement::MEMBER_TYPE . '_email');
             if (!empty($mail)) {
                 $mail = $mail[0];
             }
-            $members[$group][$member->ID] = [
-                'mail_address' => $mail,
-                'full_name' => $member->post_title
-            ];
+
+            $group = get_post_meta($member->ID, ClubMemberManagement::MEMBER_TYPE . '_member_group');
+            if (!empty($group) && !empty($group[0])) {
+                foreach ($group[0] as $group_id) {
+                    $group_data = get_post($group_id);
+                    $group_name = $group_data->post_title;
+                    $members[$group_name][$member->ID] = [
+                        'mail_address' => $mail,
+                        'full_name' => $member->post_title
+                    ];
+                }
+            }
+
         }
 
         require CMM_PLUGIN_VIEWS_DIR . 'mail_member.view.php';
@@ -509,8 +514,7 @@ class ClubMemberManagement
 
             foreach (ClubMemberManagement::MEMBER_FIELDS as $field) {
                 if ($field['key'] == 'member_group') {
-                    $ids = implode($_POST['member_group'], ',') . ',';
-                    update_post_meta($post_id, ClubMemberManagement::MEMBER_TYPE . '_' . $field['key'], $ids);
+                    update_post_meta($post_id, ClubMemberManagement::MEMBER_TYPE . '_' . $field['key'], $_POST['member_group']);
                 } else {
                     $$field['key'] = sanitize_text_field($_POST[$field['key']]);
                     update_post_meta($post_id, ClubMemberManagement::MEMBER_TYPE . '_' . $field['key'], $$field['key']);
@@ -567,7 +571,7 @@ class ClubMemberManagement
     {
         if ($columnName == ClubMemberManagement::MEMBER_TYPE . '_member_group') {
             $groups = [];
-            foreach (explode(',', get_post_field($columnName, $post_id)) as $id) {
+            foreach (get_post_field($columnName, $post_id) as $id) {
                 if (!empty($id)) {
                     $groups[] = '<a href="' . add_query_arg(['post' => $id, 'action' => 'edit'], admin_url('post.php'))
                         . '">' . get_post_field('post_title', $id) . '</a>';
