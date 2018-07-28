@@ -406,7 +406,13 @@ class ClubMemberManagement
     {
         $data = get_posts([
             'post_type' => ClubMemberManagement::MEMBER_TYPE,
-            ClubMemberManagement::MEMBER_TYPE . '_member_group' => $post->ID
+            'meta_query' => [
+                [
+                    'key' => ClubMemberManagement::MEMBER_TYPE . '_member_group',
+                    'value' => $post->ID,
+                    'compare' => 'LIKE'
+                ]
+            ]
         ]);
 
         require CMM_PLUGIN_VIEWS_DIR . 'group.view.php';

@@ -47,20 +47,18 @@
 
         foreach ($data as $member) {
             $meta = get_post_meta($member->ID);
-            if ($meta[ClubMemberManagement::MEMBER_TYPE . '_member_group'][0] == $post->ID) {
-                echo('<tr>');
-                echo("<td><input class='group-member' type='checkbox' name='member_id[]' 
+            echo('<tr>');
+            echo("<td><input class='group-member' type='checkbox' name='member_id[]' 
                     value='{$member->ID}'><a href='" .
-                    add_query_arg(['post' => $member->ID, 'action' => 'edit'], admin_url('post.php')) . "'>
+                add_query_arg(['post' => $member->ID, 'action' => 'edit'], admin_url('post.php')) . "'>
                     {$member->post_title}</a></td>");
-                foreach (ClubMemberManagement::MEMBER_FIELDS as $field) {
-                    if ($field['list'] && $field['key'] != 'member_group') {
-                        $key = ClubMemberManagement::MEMBER_TYPE . '_' . $field['key'];
-                        echo("<td>{$meta[$key][0]}</td>");
-                    }
+            foreach (ClubMemberManagement::MEMBER_FIELDS as $field) {
+                if ($field['list'] && $field['key'] != 'member_group') {
+                    $key = ClubMemberManagement::MEMBER_TYPE . '_' . $field['key'];
+                    echo("<td>{$meta[$key][0]}</td>");
                 }
-                echo('</tr>');
             }
+            echo('</tr>');
         }
 
         ?>
@@ -72,7 +70,7 @@
     </div>
 </form>
 <script>
-    jQuery("#ck_all_members").click(function () {
-        jQuery(".group-member").prop('checked', jQuery("#ck_all_members").prop('checked'));
-    });
+  jQuery("#ck_all_members").click(function () {
+    jQuery(".group-member").prop('checked', jQuery("#ck_all_members").prop('checked'));
+  });
 </script>
