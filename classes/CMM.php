@@ -301,7 +301,7 @@ class ClubMemberManagement
             $query->set('meta_query', [[
                 'key' => ClubMemberManagement::MEMBER_TYPE . '_member_group',
                 'value' => $group,
-                'compare' => '=',
+                'compare' => 'like',
             ]]);
         }
 
@@ -502,8 +502,14 @@ class ClubMemberManagement
             }
 
             foreach (ClubMemberManagement::MEMBER_FIELDS as $field) {
-                $$field['key'] = sanitize_text_field($_POST[$field['key']]);
-                update_post_meta($post_id, ClubMemberManagement::MEMBER_TYPE . '_' . $field['key'], $$field['key']);
+                if ($field['key'] == 'member_group') {
+                    $ids = implode($_POST['member_group'], ',') . ',';
+                    update_post_meta($post_id, ClubMemberManagement::MEMBER_TYPE . '_' . $field['key'], $ids);
+                } else {
+                    $$field['key'] = sanitize_text_field($_POST[$field['key']]);
+                    update_post_meta($post_id, ClubMemberManagement::MEMBER_TYPE . '_' . $field['key'], $$field['key']);
+                }
+
             }
 
         } elseif (ClubMemberManagement::GROUP_TYPE == $_POST['post_type']) {
@@ -554,7 +560,14 @@ class ClubMemberManagement
     public function displayMemberListColumnData($columnName, $post_id)
     {
         if ($columnName == ClubMemberManagement::MEMBER_TYPE . '_member_group') {
-            echo get_post_field('post_title', get_post_field($columnName, $post_id));
+            $groups = [];
+            foreach (explode(',', get_post_field($columnName, $post_id)) as $id) {
+                if (!empty($id)) {
+                    $groups[] = '<a href="' . add_query_arg(['post' => $id, 'action' => 'edit'], admin_url('post.php'))
+                        . '">' . get_post_field('post_title', $id) . '</a>';
+                }
+            }
+            echo implode($groups, ',&nbsp;');
         } else {
             echo get_post_field($columnName, $post_id);
         }
