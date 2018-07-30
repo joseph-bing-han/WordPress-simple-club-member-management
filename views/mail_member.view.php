@@ -34,16 +34,10 @@
         <th>Email Address</th>
         <th>
             <select id="select_member_list">
-                <option value="">Choose Member</option>
+                <option value="">Choose Group</option>
                 <?php
-                foreach ($members as $group => $group_members) {
-                    echo("<optgroup label='{$group}'>");
-                    foreach ($group_members as $id => $member) {
-                        echo("<option id='option_member_{$id}' value='{$id}' member_name='{$member["full_name"]}'
-                            member_mail='{$member["mail_address"]}'>
-                            {$member["full_name"]} ({$member['mail_address']})</option>");
-                    }
-                    echo("</optgroup>");
+                foreach ($groups as $group_id => $group_name) {
+                    echo("<option value='{$group_id}'>{$group_name}</option>");
                 }
                 ?>
             </select>
@@ -67,25 +61,30 @@
     </tbody>
 </table>
 <script>
-    function removeMember(id) {
-        jQuery("#tr_member_" + id).remove();
-    }
+  function removeMember(id) {
+    jQuery("#tr_member_" + id).remove();
+  }
 
-    function addMember() {
-        var id = jQuery('#select_member_list').val();
-        if (id != '') {
-            if (jQuery('#tr_member_' + id).length == 0) {
-                var name = jQuery("#option_member_" + id).attr('member_name');
-                var mail = jQuery("#option_member_" + id).attr('member_mail');
-                jQuery('#table_group_mail_member').append(
-                    '<tr id="tr_member_' + id + '"><input type="hidden" name="member_id[]" value="' + id +
-                    '"><td><a href="<?php
-                        echo(add_query_arg(['action' => 'edit'], admin_url('post.php')));
-                        ?>&post=' + id + '">' + name + '</a></td><td>' + mail +
-                    '</td><td><input type="button" class="button button-secondary" value="Remove" ' +
-                    'onclick="removeMember(\'' + id + '\')"></td></tr>'
-                );
-            }
+  function addMember() {
+    var all_members = <?php echo json_encode($members);?>;
+    const id = jQuery('#select_member_list').val();
+    if (id != '' && typeof(all_members[id]) != 'undefined') {
+      const members = all_members[id];
+      for (let tid in members) {
+        if (tid > 0 && jQuery('#tr_member_' + tid).length == 0) {
+          const name = members[tid]['full_name'];
+          const mail = members[tid]['mail_address'];
+          jQuery('#table_group_mail_member').append(
+            '<tr id="tr_member_' + tid + '"><input type="hidden" name="member_id[]" value="' + tid +
+            '"><td><a href="<?php
+                echo(add_query_arg(['action' => 'edit'], admin_url('post.php')));
+                ?>&post=' + tid + '">' + name + '</a></td><td>' + mail +
+            '</td><td><input type="button" class="button button-secondary" value="Remove" ' +
+            'onclick="removeMember(\'' + tid + '\')"></td></tr>'
+          );
         }
+      }
+
     }
+  }
 </script>

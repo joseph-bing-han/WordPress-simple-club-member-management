@@ -465,6 +465,16 @@ class ClubMemberManagement
             }
         }
 
+        $groups = [];
+        $all_groups = query_posts([
+            'post_status' => 'publish',
+            'post_type' => ClubMemberManagement::GROUP_TYPE
+        ]);
+
+        foreach ($all_groups as $group) {
+            $groups[$group->ID] = $group->post_title;
+        }
+
         $members = [];
         $all_members = query_posts([
             'post_status' => 'publish',
@@ -480,9 +490,7 @@ class ClubMemberManagement
             $group = get_post_meta($member->ID, ClubMemberManagement::MEMBER_TYPE . '_member_group');
             if (!empty($group) && !empty($group[0])) {
                 foreach ($group[0] as $group_id) {
-                    $group_data = get_post($group_id);
-                    $group_name = $group_data->post_title;
-                    $members[$group_name][$member->ID] = [
+                    $members[$group_id][$member->ID] = [
                         'mail_address' => $mail,
                         'full_name' => $member->post_title
                     ];
